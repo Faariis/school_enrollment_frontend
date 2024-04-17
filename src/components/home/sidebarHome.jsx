@@ -1,8 +1,8 @@
-const SidebarHome = ({selectedPage, setSelectedPage}) => {
+const SidebarHome = ({ selectedPage, setSelectedPage }) => {
     return (
         <div>
             <div className="flex flex-col">
-            <div className="bg-gray-700 text-white py-2 px-4 uppercase border-b text-center font-bold">
+                <div className="bg-gray-700 text-white py-2 px-4 uppercase border-b text-center font-bold">
                     Učenici
                 </div>
                 <div
@@ -24,3 +24,4 @@ const SidebarHome = ({selectedPage, setSelectedPage}) => {
 };
 
 export default SidebarHome;
+

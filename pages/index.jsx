@@ -16,33 +16,50 @@ const Home = (props) => {
     const a = 2
     const b = 3
     const c = 4
-    if (a===2 && (b===2 || c===4)) {
+    if (a === 2 && (b === 2 || c === 4)) {
       console.log('true')
     } else {
       console.log('false')
 
     }
   })
+
   return (
     <Layout>
-      <div className="flex mt-6 gap-5">
-        <div className="w-1/5 border-r">
-        <SidebarHome
-          selectedPage={selectedPage}
-          setSelectedPage={setSelectedPage}
-        />
+      <div className="">
+        {/* Here we render tabs for smaller screen sizes (phones); */}
+        <div className="sm:hidden flex justify-center gap-5 mb-8">
+          <button
+            className={`px-6 py-2 rounded-lg text-white font-semibold ${selectedPage === "listStudentsHome" ? "bg-gray-600" : "bg-gray-500"
+              }`}
+            onClick={() => setSelectedPage("listStudentsHome")}
+          >
+            Lista učenika
+          </button>
+          <button
+            className={`px-6 py-2 rounded-lg text-white font-semibold ${selectedPage === "listCoursesHome" ? "bg-gray-600" : "bg-gray-500"
+              }`}
+            onClick={() => setSelectedPage("listCoursesHome")}
+          >Lista smjerova</button>
         </div>
-        <div className="w-4/5">
-          {selectedPage === "listStudentsHome" && <ListStudents />}
-          {selectedPage === "listCoursesHome" && <ListCoursesHome setSelectedPage={setSelectedPage} />}
+
+        {/* This is displayed for normal sized screens (computers, laptops) */}
+        <div className="sm:flex gap-5">
+          <div className="sm:w-1/5 hidden sm:block border-r">
+            <SidebarHome
+              selectedPage={selectedPage}
+              setSelectedPage={setSelectedPage}
+            />
+          </div>
+          <div className="sm:w-4/5">
+            {selectedPage === "listStudentsHome" && <ListStudents />}
+            {selectedPage === "listCoursesHome" && <ListCoursesHome setSelectedPage={setSelectedPage} />}
+          </div>
         </div>
       </div>
-
-
-
-
     </Layout>
-  )
+  );
 };
 
 export default Home;
+
