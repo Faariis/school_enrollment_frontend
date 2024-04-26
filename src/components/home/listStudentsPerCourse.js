@@ -30,7 +30,7 @@ const ListStudentsPerCourse = ({ courseId }) => {
     // Function to handle search input change
     const handleSearchInputChange = (event) => {
         setSearchInput(event.target.value);
-    };
+    };   
 
     // Filter students based on search input
     const filteredStudents = students.filter(student =>
@@ -39,6 +39,15 @@ const ListStudentsPerCourse = ({ courseId }) => {
     );
 
     console.log(filteredStudents[0])
+
+    const goToDetails = (item) => {
+        try {
+            localStorage.setItem('lastSelectedItem', JSON.stringify(item));
+            router.push(`/home/${courseId}/${item.id}`);
+        } catch (error) {
+            console.error('Failed to save to localStorage:', error);
+        }
+    };    
 
     return (
         <div>
@@ -70,11 +79,9 @@ const ListStudentsPerCourse = ({ courseId }) => {
                                 <div key={index} className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
                                     <dt className="text-sm font-medium text-gray-500 first-letter:capitalize">{index + 1}. {item.name} {item.last_name}</dt>
                                     <dd className="mt-1 text-sm text-gray-900 sm:col-span-1 sm:mt-0">Bodovi: {item.total_points}</dd>
-                                    <Link
-                                    href={`/home/${courseId}/${item.id}`}
-                                    passHref>
+                                    <div onClick={() => goToDetails(item)}>
                                         Detalji
-                                </Link>
+                                   </div>
                                 </div>
                             ))}
                         </dl>

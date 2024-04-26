@@ -10,7 +10,7 @@ const ListStudentsDetail = (props) => {
     const { courseID } = router.query;
     const idExists = studentID !== undefined && studentID !== null;
     const courseExists = courseID !== undefined && courseID !== null;
-
+   
     useEffect(() => {
 
     }, [router.query.studentID]);
