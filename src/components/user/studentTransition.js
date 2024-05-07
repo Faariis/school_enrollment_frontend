@@ -11,6 +11,7 @@ const StudentTransition = ({ studentId }) => {
     const [newCourse, setNewCourse] = useState('');
     const [transitions, setTransitions] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [allCourses, setAllCourses] = useState([]);
 
     useEffect(() => {
         fetchStudentData();
@@ -18,16 +19,6 @@ const StudentTransition = ({ studentId }) => {
 
     async function fetchStudentData() {
         try {
-            const studentResp = await fetch(`${Url}api/sec-students/student-list/${studentId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${data.user.token}`,
-                }
-            });
-            const studentData = await studentResp.json();
-            setStudent(studentData);
-
             const transitionResp = await fetch(`${Url}api/sec-students/student-list/1/student/${studentId}/transition`, {
                 method: 'GET',
                 headers: {
@@ -36,15 +27,17 @@ const StudentTransition = ({ studentId }) => {
                 }
             });
             const transitionData = await transitionResp.json();
-            setTransitions(transitionData);
-
-            if (!transitionData || transitionData.length === 0) {
-                // If we do not have the transtion data just use desired_course_A;
-                setOldCourse(studentData.desired_course_A);
+            if (transitionData.transitions) { // Check if transitions exist in the response
+                setTransitions(transitionData.transitions); // Only set the transitions array
             } else {
-                // If there are transitions we use the latest new course for old course in the PUT;
-                const latestTransition = transitionData[transitionData.length - 1];
-                setOldCourse(latestTransition.new_course);
+                setTransitions([]); // Set transitions to an empty array if not found
+            }
+            setOldCourse(transitionData.desired_student_course);
+            if (transitionData.all_courses) {
+                const filteredCourses = transitionData.all_courses.filter(course => course !== transitionData.desired_student_course);
+                setAllCourses(filteredCourses);
+            } else if (transitionData.other_courses) {
+                setAllCourses(transitionData.other_courses);
             }
         } catch (error) {
             console.error('Error fetching student data:', error);
@@ -62,7 +55,7 @@ const StudentTransition = ({ studentId }) => {
                 },
                 body: JSON.stringify({
                     pupil_id: studentId,
-                    school_id: student.secondary_school_id,
+                    school_id: 1,
                     old_course: oldCourse,
                     new_course: newCourse
                 })
@@ -136,13 +129,17 @@ const StudentTransition = ({ studentId }) => {
                             </div>
                             <div>
                                 <label htmlFor="newCourse" className="mb-1 font-bold text-gray-800">Novi smjer:</label>
-                                <input
-                                    type="text"
+                                <select
                                     id="newCourse"
                                     value={newCourse}
                                     onChange={(e) => setNewCourse(e.target.value)}
                                     className="w-full border border-gray-300 rounded-md px-4 py-2"
-                                />
+                                >
+                                    <option value="">Izaberi novi smjer</option>
+                                    {allCourses.map((course, index) => (
+                                        <option key={index} value={course}>{course}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="flex justify-between">
                                 <button type="submit" className="w-1/2 bg-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-400 transition-colors shadow-lg mr-2">Submit</button>

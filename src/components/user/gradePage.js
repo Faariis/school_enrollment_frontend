@@ -20,16 +20,16 @@ const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
     return tabToGradeMap[currentTab];
   };
 
-  // This function is used to check if there are already existing scores for class_id, course_code, pupil_id;
-  const fetchExistingScores = async () => {
+  const fetchData = async (grade, studentId) => {
     try {
-      const response = await fetch(`${Url}api/sec-students/student-list/${studentId}/course-create/`, {
+      const response = await fetch(`${Url}api/sec-students/student-list/primary-school/class/${grade}/student/${studentId}/`, {
         headers: {
           Authorization: `Bearer ${data.user.token}`,
         },
       });
-      if (response.ok) {
-        const scores = await response.json();
+      // if the response status is 200;
+      if (response.status === 200) {
+        const responseData = await response.json();
         const tabToGradeMap = {
           sixthGrade: 'VI',
           seventhGrade: 'VII',
@@ -37,106 +37,131 @@ const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
           ninthGrade: 'IX',
         };
         const currentGrade = tabToGradeMap[selectedTab];
-        const filteredScores = scores.filter(score => score.class_id === currentGrade);
-        setExistingScores(filteredScores);
-      } else {
-        console.error('Failed to fetch existing scores!');
-        setExistingScores([]);
-      }
-    } catch (error) {
-      console.error('Error fetching existing scores:', error);
-      setExistingScores([]);
-    }
-  };
+        let classId = '';
+  
+        if (grade === '6') {
+          classId = 'VI';
+        } else if (grade === '7') {
+          classId = 'VII';
+        } else if (grade === '8') {
+          classId = 'VIII';
+        } else if (grade === '9') {
+          classId = 'IX';
+        }
 
-  // Function to get the course_code based on the corresponding class_id
-  const fetchCourseCodes = async (grade) => {
-    try {
-      let classId = '';
-      if (grade === '6') {
-        classId = 'VI';
-      } else if (grade === '7') {
-        classId = 'VII';
-      } else if (grade === '8') {
-        classId = 'VIII';
-      } else if (grade === '9') {
-        classId = 'IX';
-      }
-      const response = await fetch(`${Url}api/sec-students/student-list/primary-school/courses/${grade}/`);
-      if (response.ok) {
-        const subjects = await response.json();
-        const courseCodes = subjects.map(subject => subject._courses.course_code);
-        setGradeSubjects([...new Set(courseCodes)]);
-        setClassId(classId);
+          // When scores are available, we fetch the existing scores;
+          const scores = responseData.data;
+          const filteredScores = scores.filter(score => score.class_id === currentGrade);
+          setExistingScores(filteredScores);
+          const courseCodes = responseData.data.map(item => item.course_code);
+          setClassId(classId);
+          setGradeSubjects([...courseCodes]);
+      // if the response status is 404;
+      } else if (response.status === 404) {
+        // If there are no socres entered we fetch the courses;
+        const data = await response.json();
+        const courseCodes = data.courses.data;
+        setClassId(data.class_id);
+        setGradeSubjects([...courseCodes]);
+        setExistingScores([]);
       } else {
-        console.error('Failed to fetch courses!');
+        console.error('Failed to fetch data!');
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
   useEffect(() => {
-    fetchExistingScores();
-    fetchCourseCodes(selectedTab === 'sixthGrade' ? '6' : selectedTab === 'seventhGrade' ? '7' : selectedTab === 'eightGrade' ? '8' : '9');
-  }, [selectedTab]);
+    fetchData(selectedTab === 'sixthGrade' ? '6' : selectedTab === 'seventhGrade' ? '7' : selectedTab === 'eightGrade' ? '8' : '9', studentId);
+  }, [selectedTab, studentId]);
 
   const handleSubmit = async (dataVal) => {
+    const tabToGradeMap = {
+      sixthGrade: '6',
+      seventhGrade: '7',
+      eightGrade: '8',
+      ninthGrade: '9',
+    };
+    const grade = tabToGradeMap[selectedTab];
+
     try {
-      // Check if existing scores exist for the selected grade
-      if (existingScores.length > 0) {
-        console.log('Scores already exist.');
-        return;
-      }
+      const courses = [];
+      gradeSubjects.forEach((subject) => {
+        const score = dataVal[subject];
 
-      // Iterate through gradeSubjects to create courses
-      const courses = gradeSubjects.map((subject) => ({
-        score: dataVal[subject],
-        class_id: classId,
-        course_code: subject,
-        pupil_id: studentId,
-      }));
-
-      // Check if the course already exists in the existingScores
-      for (const course of courses) {
-        const existingScore = existingScores.find(score =>
-          score.class_id === course.class_id &&
-          score.course_code === course.course_code &&
-          score.score === course.score
-        );
-        if (existingScore) {
-          console.log(`Score ${course.score} already exists for course_code ${course.course_code} and class_id ${course.class_id}. Data will not be sent.`);
-          return;
-        }
-      }
-
-      // Main POST function
-      if (existingScores.length === 0) {
-        for (const courseData of courses) {
-          await fetch(`${Url}api/sec-students/student-list/${studentId}/course-create/`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${data.user.token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(courseData),
+        if (subject !== 'VJR' || (score !== undefined && score !== '')) {
+          courses.push({
+            score: score !== undefined ? score : null,
+            class_id: classId,
+            course_code: subject,
+            pupil_id: studentId,
           });
         }
-        const nextTab = getNextTab(selectedTab);
-        if (nextTab) {
-          setSelectedPage(nextTab);
-        } else {
-          setSelectedPage('editStudent');
-        }
+      });
+
+      if (existingScores.length === 0) {
+        // If there are no existing scores we need to add them with POST;
+        await fetch(`${Url}api/sec-students/student-list/primary-school/class/${grade}/student/${studentId}/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${data.user.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(courses),
+        });
+        console.log('New scores added.');
       } else {
-        console.log('Existing scores found. Data will not be sent.');
+        const updatedScores = existingScores.map(score => ({
+          ...score,
+          score: dataVal[score.course_code] !== undefined ? dataVal[score.course_code] : null
+        }));
+        // If we have existing scores then we can edit them with PUT;
+        await fetch(`${Url}api/sec-students/student-list/primary-school/class/${grade}/student/${studentId}/`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${data.user.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedScores),
+        });
+        console.log('Scores updated.');
+      }
+      // After submiting we navigate to the next tab AKA grade;
+      const nextTab = getNextTab(selectedTab);
+      if (nextTab) {
+        setSelectedPage(nextTab);
+      } else {
+        setSelectedPage('editStudent');
       }
     } catch (e) {
       console.error('Error submitting grades:', e);
     }
   };
 
-  return <GradeForm onSubmit={handleSubmit} classId={classId} subjects={gradeSubjects} pupilId={studentId} existingScores={existingScores} />;
+  const handleDeleteGrade = async () => {
+    const tabToGradeMap = {
+      sixthGrade: '6',
+      seventhGrade: '7',
+      eightGrade: '8',
+      ninthGrade: '9',
+    };
+    const grade = tabToGradeMap[selectedTab];
+    try {
+      await fetch(`${Url}api/sec-students/student-list/primary-school/class/${grade}/student/${studentId}/`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${data.user.token}`,
+        },
+      });
+      console.log('Scores deleted.');
+      fetchData(grade, studentId);
+    } catch (error) {
+      console.error('Error deleting scores:', error);
+    }
+  };
+
+  return <GradeForm onSubmit={handleSubmit} onDelete={handleDeleteGrade} classId={classId} subjects={gradeSubjects} pupilId={studentId} existingScores={existingScores} />;
 };
 
 export default GradePage;

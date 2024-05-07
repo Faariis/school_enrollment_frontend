@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import ConfirmationModal from '../delete/confirmationModal';
 
-const GradeForm = ({ onSubmit, classId, subjects, pupilId, existingScores }) => {
+const GradeForm = ({ onSubmit, onDelete, classId, subjects, pupilId, existingScores }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
     clearErrors,
-    setValue, // Destructure setValue from useForm
+    setValue,
   } = useForm();
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const showDeleteForm = () => {
+    setShowDeleteModal(true);
+  }
+  const handleDelete = () => {
+    onDelete()
+  };
 
   // Here we are checking if the grade is between 2 and 5 and it must be a number;
   const validateGrade = (value, fieldName) => {
@@ -33,11 +43,11 @@ const GradeForm = ({ onSubmit, classId, subjects, pupilId, existingScores }) => 
     setFocusedInputIndex(index);
     const isValidGrade = validateGrade(value, subjects[index]);
     if (isValidGrade !== true) {
-      setError(subjects[index], { message: isValidGrade }); // Set error message if grade is invalid
+      setError(subjects[index], { message: isValidGrade });
     } else {
-      clearErrors(subjects[index]); // Clear error message if grade is valid
+      clearErrors(subjects[index]);
       if (index < subjects.length - 1) {
-        document.getElementById(subjects[index + 1]).focus(); // Move focus to next input field
+        document.getElementById(subjects[index + 1]).focus();
       }
     }
   };
@@ -48,14 +58,14 @@ const GradeForm = ({ onSubmit, classId, subjects, pupilId, existingScores }) => 
       const savedGrade = localStorage.getItem(`${classId}-${subject}-${pupilId}`);
       if (savedGrade) {
         // If grade exists in local storage, set it in the form
-        setValue(subject, savedGrade); // Use setValue to set form values
+        setValue(subject, savedGrade);
       }
     });
   
     // Set existing scores in the form fields
     existingScores.forEach(score => {
       if (score.class_id === classId) {
-        setValue(score.course_code, score.score.toString()); // Convert score to string and set in the form
+        setValue(score.course_code, score.score.toString());
       }
     });
   }, [classId, subjects, setValue, existingScores, pupilId]);
@@ -74,55 +84,68 @@ const GradeForm = ({ onSubmit, classId, subjects, pupilId, existingScores }) => 
             {subjects.map((subject, index) => (
               <div key={subject} className="flex flex-col mb-4">
                  <div className="flex items-center">
-        <label htmlFor={subject} className="text-gray-600 mb-2">
-          {subject}
-          {errors[subject] && (
-            <button
-              className="ml-2 text-red-600"
-              onClick={() => {
-                document.getElementById(subject).focus();
-              }}
-            >
-              *
-            </button>
-          )}
-        </label>
-      </div>
-      <div className="flex items-center">
-                  <input
-                    id={subject}
-                    className="border border-gray-300 rounded-md py-2 px-4 mb-2 focus:outline-none focus:border-blue-500 flex-grow"
-                    type="text"
-                    placeholder={`Unesite ocjenu za ${subject}`}
-                    {...register(subject, {
-                      required: subjects[index] === 'VJR' ? false : true && subjects[index] === '',
-                      validate: (value) => validateGrade(value, subjects[index])
-                    })}
-                    onChange={(e) => {
-                      handleInputChange(index, e.target.value);
-                      saveGradeToLocalStorage(subjects[index], e.target.value); // Save grade to local storage on change
-                    }}
-                  />
-                </div>
-                {errors[subject] && (
-                  <p className="text-red-500 italic">{errors[subject]?.message}</p>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center">
-            <input
-              type="submit"
-              value="Sačuvaj"
-              className="w-full md:w-40 bg-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-400 transition-colors shadow-lg"
-            />
-          </div>
-          <div className="flex justify-center items-center">
-    {existingScores.length > 0 && (
-      <p className="text-red-500 text-xs mb-2">Ocjene su unesene za {classId} razred!</p>
-    )}
-  </div>
+                 <label htmlFor={subject} className="text-gray-600 mb-2">
+                   {subject}
+                   {errors[subject] && (
+                     <button
+                       className="ml-2 text-red-600"
+                       onClick={() => {
+                         document.getElementById(subject).focus();
+                       }}>*</button>
+                   )}
+                 </label>
+               </div>
+                <div className="flex items-center">
+                            <input
+                              id={subject}
+                              className="border border-gray-300 rounded-md py-2 px-4 mb-2 focus:outline-none focus:border-blue-500 flex-grow"
+                              type="text"
+                              placeholder={`Unesite ocjenu za ${subject}`}
+                              {...register(subject, {
+                                required: subjects[index] === 'VJR' ? false : true && subjects[index] === '',
+                                validate: (value) => validateGrade(value, subjects[index])
+                              })}
+                              onChange={(e) => {
+                                handleInputChange(index, e.target.value);
+                                saveGradeToLocalStorage(subjects[index], e.target.value); // Save grade to local storage on change
+                              }}
+                            />
+                          </div>
+                          {errors[subject] && (
+                            <p className="text-red-500 italic">{errors[subject]?.message}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-center">
+                      <input
+                        type="submit"
+                        value="Sačuvaj"
+                        className="w-full md:w-40 bg-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-400 transition-colors shadow-lg"
+                      />
+                      {existingScores.length > 0 && (
+                      <button
+                      type="button"
+                      onClick={showDeleteForm}
+                      className="ml-2 w-full md:w-40 bg-red-500 text-white rounded-md px-4 py-2 hover:bg-red-600 transition-colors shadow-lg">Izbriši</button>
+                      )}
+                    </div>
+                    <div className="flex justify-center items-center">
+              {existingScores.length > 0 && (
+                <p className="text-red-500 text-xs mb-2">Ocjene su unesene za {classId} razred. Sada ih možete editovati ili izbrisati.</p>
+              )}
+            </div>
         </form>
+        {showDeleteModal && (
+        <ConfirmationModal
+          message={`Da li ste sigurni da želite izbrisati ocjene za ${classId} razred?`}
+          onConfirm={() => {
+            handleDelete();
+            setShowDeleteModal(false);
+          }}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ const ListStudents = () => {
                             {studentsData && studentsData.map((student, studentIndex) => {
                                 // Check if there are duplicates of the current student's name and last name in the studentsData array
                                 const hasDuplicateNames = studentsData.filter(s => s.pupil_name === student.pupil_name && s.pupil_last_name === student.pupil_last_name).length > 1;
-
+                                const courseStatistics = Object.values(student.courses_short_statistics).filter(course => course.course_code === student.desired_course_code);
                                 return (
                                     <div key={studentIndex} className="rounded-md p-1 my-2">
                                         {isMobile && (
@@ -115,7 +115,7 @@ const ListStudents = () => {
                                                 </div>
                                                 <div className="mr-4">
                                                     <div className="text-base font-bold mr-5">Pozicija:</div>
-                                                    <dt className="text-base text-lg ml-4">1</dt>
+                                                    <dt className="text-base text-lg ml-4">{courseStatistics.length > 0 && courseStatistics[0].current_position}</dt>
                                                 </div>
                                                 <div className="flex-grow mr-4">
                                                     <div className="text-base font-bold">Smjer:</div>
@@ -137,7 +137,7 @@ const ListStudents = () => {
                                             </div>
                                             <div className="mr-20 flex-grow">
                                                 <div className="text-base font-bold">Pozicija:</div>
-                                                <dt className="text-base text-lg ml-5">1</dt>
+                                                <dt className="text-base text-lg ml-5">{courseStatistics.length > 0 && courseStatistics[0].current_position}</dt>
                                             </div>
                                             <div className="flex-grow">
                                                 <div className="text-base font-bold">Smjer:</div>
@@ -155,7 +155,7 @@ const ListStudents = () => {
                                             Object.values(student.courses_short_statistics)
                                                 .sort((a, b) => b.total_points - a.total_points)
                                                 .map((course, courseIndex) => (
-                                                    <div key={courseIndex} className={`p-4 my-2 border  border-gray-300 ${course.course_code === student.desired_course_code ? 'bg-gray-200 border-gray-900' : 'bg-gray-100'}`}>
+                                                    <div key={courseIndex} className={`p-4 my-2 border border-gray-300 ${course.course_code === student.desired_course_code ? 'border-gray-600 border-[2px]' : 'border-gray-300'} ${course.current_position < 23 ? 'bg-green-100' : 'bg-red-100'}`}>
                                                         <div className="flex items-center">
                                                             {isMobile && (
                                                                 <>
@@ -165,7 +165,7 @@ const ListStudents = () => {
                 
                                                                     </div>
                                                                     <div className="mr-14">
-                                                                        <div className="text-md text-gray-700">1</div>
+                                                                        <div className="text-md text-gray-700">{course.current_position}</div>
                                                                     </div>
                                                                     <div className="flex-grow mr-3">
                                                                         <div className="text-md text-gray-700">{student.desired_course_code}</div>
@@ -178,7 +178,7 @@ const ListStudents = () => {
                                                                         <dt className="text-md  text-gray-700">{student.pupil_name} {hasDuplicateNames && `(${student.pupil_guardian_name})`} {student.pupil_last_name}</dt>
                                                                     </div>
                                                                     <div className="text-center ml-20 mr-20" style={{ minWidth: '11rem' }}>
-                                                                        <dt className="text-md  text-gray-700">1</dt>
+                                                                        <dt className="text-md  text-gray-700">{course.current_position}</dt>
                                                                     </div>
                                                                     <div className="flex-grow text-center">
                                                                         <dt className="text-base text-md  text-gray-700">{course.course_code}</dt>

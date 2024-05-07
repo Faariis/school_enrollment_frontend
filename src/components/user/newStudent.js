@@ -71,7 +71,7 @@ const NewStudents = ({ setSelectedPage }) => {
         desired_course_A: dataVal.course_id,
       };
 
-      const store = await fetch(`${Url}/api/sec-students/student-list/`, {
+      const store = await fetch(`${Url}api/sec-students/student-list/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${data.user.token}`,
@@ -188,7 +188,10 @@ const NewStudents = ({ setSelectedPage }) => {
             className="border rounded w-full py-2 px-3"
             type="text"
             placeholder="Unesite broj telefona učenika"
-            {...register("phone_number", { required: "Polje je obavezno!" })}
+            defaultValue="+387"
+            {...register("phone_number", { required: "Polje je obavezno!",
+            minLength: { value: 8, message: "Broj telefona mora imati najmanje 8 cifara!" },
+            maxLength: { value: 13, message: "Broj telefona može imati najviše 12 cifara!" } })}
           />
           {errors.phone_number && (
             <p className="text-red-500 italic">
@@ -205,7 +208,10 @@ const NewStudents = ({ setSelectedPage }) => {
             className="border rounded w-full py-2 px-3"
             type="text"
             placeholder="Unesite broj telefona staratelja"
-            {...register("guardian_number", { required: "Polje je obavezno!" })}
+            defaultValue="+387"
+            {...register("guardian_number", { required: "Polje je obavezno!",
+            minLength: { value: 8, message: "Broj telefona mora imati najmanje 8 cifara!" },
+            maxLength: { value: 13, message: "Broj telefona može imati najviše 12 cifara!" } })}
           />
           {errors.guardian_number && (
             <p className="text-red-500 italic">
