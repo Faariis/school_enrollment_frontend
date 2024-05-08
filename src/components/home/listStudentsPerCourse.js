@@ -5,20 +5,24 @@ import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import useIsMobile from "./useIsMobile";
 
-var filteredStudents;
-var allStudents;
-var setStudents;
+let filteredStudents;
 
 const ListStudentsPerCourse = ({ courseId }) => {
     const router = useRouter();
-    [allStudents, setStudents] = useState([]);
+    const [allStudents, setStudents] = useState([]);
     const [searchInput, setSearchInput] = useState("");
+    const [pageNo, setPageNo] = useState(1);
+    const [noPerPage, setNoPerPage] = useState(3);
+    const [totalRecords, setTotalRecord] = useState(0);
     const isMobile = useIsMobile();
 
     async function getStudents(courseId) {
         try {
-            const studentsData = await getAllStudents(courseId);
-            setStudents(studentsData);
+            const studentsData = await getAllStudents(courseId, pageNo, noPerPage);
+            console.log("🚀 ~ getStudents ~ studentsData:", studentsData)
+            setStudents(studentsData.extractedStudents);
+            setTotalRecord(studentsData.totalPupils);
+            setPageNo(pageNo+1);
         } catch (e) {
             console.error("Error fetching student data:", e);
         }
@@ -36,7 +40,7 @@ const ListStudentsPerCourse = ({ courseId }) => {
         setSearchInput(event.target.value);
     };
 
-    filteredStudents = allStudents.filter(student =>
+    let filteredStudents = allStudents.filter(student =>
         student.name.toLowerCase().includes(searchInput.toLowerCase()) ||
         student.last_name.toLowerCase().includes(searchInput.toLowerCase())
     );
@@ -50,6 +54,12 @@ const ListStudentsPerCourse = ({ courseId }) => {
             return b.total_points - a.total_points;
         }
     });
+
+    const loadMoreStudents = async () => {
+        const studentsData = await getAllStudents(courseId, pageNo, noPerPage);
+        setStudents(prevStudents => [...prevStudents, ...studentsData.extractedStudents]); 
+        setPageNo(prevPageNo => prevPageNo + 1);
+    }
 
     return (
         <div>
@@ -141,17 +151,30 @@ const ListStudentsPerCourse = ({ courseId }) => {
             ) : (
                 <p className="text-red-500 font-bold mt-3">Trenutno niko nije upisan.</p>
             )}
+            
+            <div 
+                onClick={() => loadMoreStudents()}
+                className="flex justify-center items-center h-10 w-40 border mt-20 bg-gray-800 text-white">
+                    <span>Učitaj još učenika</span>
+                {/* {totalRecords < allStudents.length ? (
+                    <span>Učitaj još učenika</span>
+                ) : (
+                    <span>Nema više</span>
+                )}     */}
+            </div>
         </div>
     );
 };
 
 // Function to retrieve all students
-export const getAllStudents = async (courseId) => {
+export const getAllStudents = async (courseId, pageNo = 1, noPerPage = 3) => {
     try {
-        const resp = await fetch(`${Url}api/sec-students/student-list/1/${courseId}/1/5/`, {
+        const resp = await fetch(`${Url}api/sec-students/student-list/1/${courseId}/${pageNo}/${noPerPage}/`, {
             method: 'GET',
         });
         const studentsData = await resp.json();
+
+        const totalPupils = studentsData.total_pupils_on_this_course;
 
         console.log("studentsData:", studentsData);
 
@@ -202,7 +225,7 @@ export const getAllStudents = async (courseId) => {
     
         extractedStudents.push(student);
     }
-    return extractedStudents;
+    return {extractedStudents, totalPupils};
     } catch (e) {
         console.error("Error fetching student data:", e);
         return [];
@@ -210,6 +233,5 @@ export const getAllStudents = async (courseId) => {
 };
 
 export {filteredStudents}
-export {allStudents}
 
 export default ListStudentsPerCourse;

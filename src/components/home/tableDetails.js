@@ -11,87 +11,94 @@ const TableDetails = ({ courseId }) => {
     const { data: session } = useSession();
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pageNo, setPageNo] = useState(1);
+    const [noPerPage, setNoPerPage] = useState(3);
+    const [totalRecords, setTotalRecord] = useState(0);
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                setLoading(true);
-                let studentsData;
-                if (allStudents && allStudents.length > 0) {
-                    // When we go to the page first time it loads the allStudents object;
-                    studentsData = allStudents.map(filteredStudent => {
+    const fetchStudents = async () => {
+        try {
+            setLoading(true);
+            let studentsData;
+            if (allStudents && allStudents.length > 0) {
+                // When we go to the page first time it loads the allStudents object;
+                studentsData = allStudents.map(filteredStudent => {
+                    const formattedSpecialScores = {};
+                    filteredStudent.sc_per_grade.forEach(grade => {
+                        const key = `${grade.class_code} ${grade.course_code}`;
+                        formattedSpecialScores[key] = grade.score;
+                    });
+
+                    return {
+                        ...filteredStudent,
+                        acknowledgmentPoints: {
+                            F: filteredStudent.total_federal_points,
+                            K: filteredStudent.total_canton_points,
+                            O: filteredStudent.total_district_points
+                        },
+                        total: filteredStudent.total_points,
+                        sv: filteredStudent.points,
+                        sv2: filteredStudent.total_special_points,
+                        sv3: filteredStudent.total_ack_points,
+                        averageScores: {
+                            VI: filteredStudent.average_VI,
+                            VII: filteredStudent.average_VII,
+                            VIII: filteredStudent.average_VIII,
+                            IX: filteredStudent.average_IX
+                        },
+                        specialScores: formattedSpecialScores
+                    };
+                });
+            } else {
+                // If we referesh the page it loads this function (API call);
+                const getStudentData = await getAllStudents(courseId, pageNo, noPerPage);
+                studentsData = getStudentData.extractedStudents;
+                setTotalRecord(studentsData.totalPupils);
+                setPageNo(pageNo+1);
+                if (studentsData && studentsData.length > 0) {
+                    studentsData = studentsData.map(student => {
                         const formattedSpecialScores = {};
-                        filteredStudent.sc_per_grade.forEach(grade => {
+                        student.sc_per_grade.forEach(grade => {
                             const key = `${grade.class_code} ${grade.course_code}`;
                             formattedSpecialScores[key] = grade.score;
                         });
 
                         return {
-                            ...filteredStudent,
+                            ...student,
                             acknowledgmentPoints: {
-                                F: filteredStudent.total_federal_points,
-                                K: filteredStudent.total_canton_points,
-                                O: filteredStudent.total_district_points
+                                F: student.total_federal_points,
+                                K: student.total_canton_points,
+                                O: student.total_district_points
                             },
-                            total: filteredStudent.total_points,
-                            sv: filteredStudent.points,
-                            sv2: filteredStudent.total_special_points,
-                            sv3: filteredStudent.total_ack_points,
+                            total: student.total_points,
+                            sv: student.points,
+                            sv2: student.total_special_points,
+                            sv3: student.total_ack_points,
                             averageScores: {
-                                VI: filteredStudent.average_VI,
-                                VII: filteredStudent.average_VII,
-                                VIII: filteredStudent.average_VIII,
-                                IX: filteredStudent.average_IX
+                                VI: student.average_VI,
+                                VII: student.average_VII,
+                                VIII: student.average_VIII,
+                                IX: student.average_IX
                             },
                             specialScores: formattedSpecialScores
                         };
                     });
                 } else {
-                    // If we referesh the page it loads this function (API call);
-                    studentsData = await getAllStudents(courseId);
-                    if (studentsData && studentsData.length > 0) {
-                        studentsData = studentsData.map(student => {
-                            const formattedSpecialScores = {};
-                            student.sc_per_grade.forEach(grade => {
-                                const key = `${grade.class_code} ${grade.course_code}`;
-                                formattedSpecialScores[key] = grade.score;
-                            });
-
-                            return {
-                                ...student,
-                                acknowledgmentPoints: {
-                                    F: student.total_federal_points,
-                                    K: student.total_canton_points,
-                                    O: student.total_district_points
-                                },
-                                total: student.total_points,
-                                sv: student.points,
-                                sv2: student.total_special_points,
-                                sv3: student.total_ack_points,
-                                averageScores: {
-                                    VI: student.average_VI,
-                                    VII: student.average_VII,
-                                    VIII: student.average_VIII,
-                                    IX: student.average_IX
-                                },
-                                specialScores: formattedSpecialScores
-                            };
-                        });
-                    } else {
-                        console.error('No student data available.');
-                    }
+                    console.error('No student data available.');
                 }
-                // Sorting the students by points;
-                studentsData.sort((a, b) => b.total - a.total); 
-                setStudents(studentsData);
-            } catch (error) {
-                console.error('Error fetching students:', error);
-            } finally {
-                setLoading(false);
             }
-        };
+            // Sorting the students by points;
+            studentsData.sort((a, b) => b.total - a.total); 
+            setStudents(prevStudents => [...prevStudents, ...studentsData]); 
 
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
         fetchStudents();
     }, [courseId]);
 
@@ -104,6 +111,10 @@ const TableDetails = ({ courseId }) => {
             const classCode = key.split(" ")[0];
             return classCode === "VIII" || classCode === "IX";
         });
+
+    const loadMoreStudents = async () => {
+        fetchStudents();
+    }
 
 
     return (
@@ -154,6 +165,18 @@ const TableDetails = ({ courseId }) => {
                     ))}
                 </tbody>
             </table>
+
+            <div 
+                onClick={() => loadMoreStudents()}
+                className="flex justify-center items-center h-10 w-40 border mt-20 bg-gray-800 text-white">
+                    <span>Učitaj još učenika</span>
+                {/* {totalRecords < allStudents.length ? (
+                    <span>Učitaj još učenika</span>
+                ) : (
+                    <span>Nema više</span>
+                )}     */}
+            </div>
+
         </div>
     );
 };
