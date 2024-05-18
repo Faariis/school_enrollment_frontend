@@ -1,0 +1,20 @@
+import { useEffect, useState } from 'react';
+
+const useIsTablet = () => {
+    const [isTablet, setIsTablet] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsTablet(window.innerWidth >= 920 && window.innerWidth <= 1200);
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return isTablet;
+};
+
+export default useIsTablet;

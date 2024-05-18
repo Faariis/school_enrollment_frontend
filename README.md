@@ -1,8 +1,26 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
+### Run with docker
+- Navigate to `docker` folder
+- Execute
+```bash
+$ docker compose up --build
+```
+- Check your containers
+```bash
+$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS             PORTS                                                                     NAMES
+80098992ba46   nginx:latest           "/docker-entrypoint.…"   8 seconds ago   Up 7 seconds       0.0.0.0:9191->80/tcp, :::9191->80/tcp                                     nginx_container
+1e8eea7e1951   myenrollment:latest    "docker-entrypoint.s…"   8 seconds ago   Up 7 seconds       0.0.0.0:3535->3000/tcp, :::3535->3000/tcp                                 myenrollment_container
+```
+- Go to `localhost:35353`
+- To stop the container open new terminal and run
+```bash
+$ docker compose down -v
+```
 
-
+### Install locally
 - First, install `npm` server and `node` version 18
 ```bash
 $ sudo apt install npm

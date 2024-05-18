@@ -7,7 +7,7 @@ const EditTeacherPage = () => {
     const { id } = router.query;
 
     const idExists = id !== undefined && id !== null;
-    
+
     useEffect(() => {
         // If we manually type the id it returns us to the admin page;
         if (!router.query.id) {

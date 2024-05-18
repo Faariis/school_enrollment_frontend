@@ -16,8 +16,8 @@ const ListCourses = () => {
                 }
             })
             const coursesData = await resp.json();
-            console.log("🚀 ~ file: listCourses.js:17 ~ getCourses ~ coursesData", coursesData)
-            setCourses(coursesData.results)
+ 
+            setCourses(coursesData)
         } catch (e) {
             console.log(e)
         }

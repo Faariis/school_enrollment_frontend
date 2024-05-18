@@ -7,16 +7,16 @@ const ConfirmationModal = ({ message, onConfirm, onCancel }) => {
         <p className="text-lg">{message}</p>
         <div className="mt-4 flex justify-end">
           <button
-            onClick={onCancel}
-            className="mr-4 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
           >
-            Otkaži
+            Potvrdi
           </button>
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            onClick={onCancel}
+            className="mr-4 ml-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
           >
-            Izbriši
+            Otkaži
           </button>
         </div>
       </div>
