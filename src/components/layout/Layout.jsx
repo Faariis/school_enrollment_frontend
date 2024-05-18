@@ -32,7 +32,7 @@ export default function Layout({ children }) {
     const isAdmin = data?.user?.is_superuser;
 
     return (
-        <div className="min-h-full">
+        <div className="min-h-screen flex flex-col">
             <Disclosure as="nav" className="bg-gray-800">
                 {({ open }) => (
                     <>
@@ -122,11 +122,16 @@ export default function Layout({ children }) {
                     </>
                 )}
             </Disclosure>
-            <main>
+            <main className="flex-grow">
                 <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
                     {children}
                 </div>
             </main>
+            <footer className="bg-gray-800 text-gray-300 py-4">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+                    <p>&copy; 2024 Eacon.</p>
+                </div>
+            </footer>
         </div>
     )
 }
