@@ -1,4 +1,4 @@
-const Url = process.env.NEXT_PUBLIC_URL;
+const Url = "http://127.0.0.1:3534/"
 const PupilLimit = 23
 
 export default Url;
