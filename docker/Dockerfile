@@ -1,3 +1,4 @@
+
 # Multistaged build
 # 1. Dependency cache
 # Install dependencies only when needed
@@ -27,6 +28,8 @@ RUN yarn build
 # 3. Runner
 FROM node:18-alpine as runner
 WORKDIR /app
+# Remove .env file since it will be used to override docker settings
+# RUN rm /app/.env
 ENV NODE_ENV $node_env
 
 RUN adduser --system --uid 1001 nextjs
@@ -42,4 +45,7 @@ COPY --from=builder /app/public ./standalone/public
 # .next/static to standalone/.next/static and to copy the public folder to standalone/public.
 
 USER nextjs
-CMD ["node","server.js"]
+EXPOSE 3000
+ENV PORT 3000
+CMD HOSTNAME="0.0.0.0" node server.js
+# CMD ["node", "server.js"]
