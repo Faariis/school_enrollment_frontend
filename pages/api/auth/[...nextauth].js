@@ -10,58 +10,60 @@ export const authOptions = {
       credentials: {},
       async authorize(credentials, req) {
         const { email, password } = credentials;
-        console.log("Poslao: " + email + " pass: " + password)
-        try{
-        const res = await fetch(`${Url}api/teachers/login/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-      }catch (error) {
-        console.log("Errorr ---")
-        console.error(error);
-        console.dir(process.env);
-      }
-      try{
-        const response = await res.json();
-        const jwt = response.access;
-        console.log("Dobio: " + jwt)
-        const { user_id } = parseJwt(jwt)
-        let user = {};
-      } catch(e){
-        console.log("Error response")
-        console.log(e)
-      }
+        console.log("Poslao: " + email + " pass: " + password);
 
         try {
-          const userResp = await fetch(`${Url}api/teachers/teacher/` + user_id + `/`, {
-            method: 'GET',
+          const res = await fetch(`${Url}api/teachers/login/`, {
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${jwt}`
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          });
+
+          if (!res.ok) {
+            throw new Error('Authentication failed.');
+          }
+
+          const response = await res.json();
+          const jwt = response.access;
+          console.log("Dobio: " + jwt);
+          const { user_id } = parseJwt(jwt);
+
+          let user = {};
+          
+          try {
+            const userResp = await fetch(`${Url}api/teachers/teacher/` + user_id + `/`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${jwt}`
+              }
+            });
+            
+            if (!userResp.ok) {
+              throw new Error('Fetching user data failed.');
             }
-          })
-          user = await userResp.json();
-        } catch (e) {
-          console.log(e)
-        }
-        // Here we are checking if the user is verified;
-        if(!user.is_verified) {
-          throw new Error('Korisnik nije verifikovan.');
-        }
-        user.token = jwt;
-        if(user.is_superuser){
-          user.role = "admin"
-        } else {
-          user.role = "user"
-        }
-        if (res.ok && user) {
+
+            user = await userResp.json();
+          } catch (e) {
+            console.error(e);
+          }
+
+          if (!user.is_verified) {
+            throw new Error('Korisnik nije verifikovan.');
+          }
+          
+          user.token = jwt;
+          user.role = user.is_superuser ? "admin" : "user";
+          
           return user;
-        } else return null;
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
       },
     }),
   ],
