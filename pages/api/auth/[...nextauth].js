@@ -10,8 +10,9 @@ export const authOptions = {
       credentials: {},
       async authorize(credentials, req) {
         const { email, password } = credentials;
+        let res;
         try {
-          const res = await fetch(`${Url}api/teachers/login/`, {
+          res = await fetch(`${Url}api/teachers/login/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
