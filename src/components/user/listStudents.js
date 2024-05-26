@@ -117,17 +117,17 @@ const ListStudents = () => {
     };
 
     const loadNextPage = () => {
-        if (nextPageUrl) {
-            getStudents(data, nextPageUrl);
-            setCurrentPage(currentPage + 1);
-        }
+        const nextPageNumber = currentPage + 1;
+        const nextPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${nextPageNumber}`;
+        getStudents(data, nextPageUrl);
+        setCurrentPage(nextPageNumber);
     };
 
     const loadPreviousPage = () => {
-        if (prevPageUrl) {
-            getStudents(data, prevPageUrl);
-            setCurrentPage(currentPage - 1);
-        }
+        const prevPageNumber = currentPage - 1;
+        const prevPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${prevPageNumber}`;
+        getStudents(data, prevPageUrl);
+        setCurrentPage(prevPageNumber);
     };
 
     const startIndex = (currentPage - 1) * studentsPerPage;
@@ -253,12 +253,7 @@ const ListStudents = () => {
     <div className="mt-1 inline-block">
         {currentPage > 1 && (
             <button
-                onClick={() => {
-                    const prevPageNumber = currentPage - 1;
-                    const prevPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${prevPageNumber}`;
-                    getStudents(data, prevPageUrl);
-                    setCurrentPage(prevPageNumber);
-                }}
+                onClick={loadPreviousPage}
                 className="text-sm mr-2 px-2 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-600 hover:text-white"
             >
                 {currentPage - 1}
@@ -271,12 +266,7 @@ const ListStudents = () => {
         </button>
         {currentPage < Math.ceil(totalRecords / studentsPerPage) && (
             <button
-                onClick={() => {
-                    const nextPageNumber = currentPage + 1;
-                    const nextPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${nextPageNumber}`;
-                    getStudents(data, nextPageUrl);
-                    setCurrentPage(nextPageNumber);
-                }}
+                onClick={loadNextPage}
                 className="text-sm mr-2 px-2 py-1 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-600 hover:text-white"
             >
                 {currentPage + 1}
