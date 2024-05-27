@@ -118,14 +118,14 @@ const ListStudents = () => {
 
     const loadNextPage = () => {
         const nextPageNumber = currentPage + 1;
-        const nextPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${nextPageNumber}`;
+        const nextPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${nextPageNumber}`.replace("http://", "https://");
         getStudents(data, nextPageUrl);
         setCurrentPage(nextPageNumber);
     };
 
     const loadPreviousPage = () => {
         const prevPageNumber = currentPage - 1;
-        const prevPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${prevPageNumber}`;
+        const prevPageUrl = `${Url}api/sec-students/student-list/1/student2/?page=${prevPageNumber}`.replace("http://", "https://");
         getStudents(data, prevPageUrl);
         setCurrentPage(prevPageNumber);
     };
