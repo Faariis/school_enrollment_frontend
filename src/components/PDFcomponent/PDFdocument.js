@@ -87,7 +87,7 @@ const PDFDocument = ({ students, specialScoreNames, courseId }) => {
               <View key={studentIndex} style={styles.tableRow}>
                 {/* Cells for each student data */}
                 <Text style={[styles.tableCell, { width: '3%' }]}>{`${studentIndex + 1}`}</Text>
-                <Text style={[styles.tableCell, { width: '9%' }]}>{`${student.name || ''} ${student.last_name || ''} ${student.status !== 'regular' ? '*' : ''}`}</Text>
+                <Text style={[styles.tableCell, { width: '9%' }]}>{`${student.last_name || ''} ${student.name || ''} ${student.status !== 'regular' ? '*' : ''}`}</Text>
                 <Text style={[styles.tableCell, { width: '9%' }]}>{student.primary_school || ''}</Text>
                 {/* Average scores */}
                 {Object.values(student?.averageScores || {}).map((average, index) => (
