@@ -163,7 +163,7 @@ const ListStudentsPerCourse = ({ courseId }) => {
             >
               <div className="text-sm font-medium text-gray-500 first-letter:capitalize">
                 <div>
-                  {(index + 1) + (pageNo - 1) * noPerPage}. {item.name} {item.last_name}{item.status !== 'regular' && '*'}
+                  {(index + 1) + (pageNo - 1) * noPerPage}. {item.last_name} {item.name}{item.status !== 'regular' && '*'}
                 </div>
               </div>
               {isMobile && (

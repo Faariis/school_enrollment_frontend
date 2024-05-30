@@ -145,7 +145,7 @@ const StudentDetails = ({ studentId, courseId }) => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                     <tr>
-                        {[`${student?.name} ${student?.last_name}`, student?.primary_school, ...(Object.values(averageScores || {})), sv, ...defaultHeaders.map(header => specialScores?.[header] || 0), sv2, ...(Object.values(acknowledgmentPoints || {})), sv3, total].map((value, index) => (
+                        {[`${student?.last_name} ${student?.name}`, student?.primary_school, ...(Object.values(averageScores || {})), sv, ...defaultHeaders.map(header => specialScores?.[header] || 0), sv2, ...(Object.values(acknowledgmentPoints || {})), sv3, total].map((value, index) => (
                                 <td key={index} className="px-6 py-4 text-center whitespace-nowrap border-r border-gray-200">{value}</td>
                             ))}
                     </tr>
