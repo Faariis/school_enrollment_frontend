@@ -61,8 +61,8 @@ const NewStudents = ({ setSelectedPage }) => {
 
   const onSubmit = async (dataVal) => {
     try {
-      const phoneNumberWithoutSpaces = dataVal.phone_number.replace(/\s+/g, "");
-      const guardianNumberWithoutSpaces = dataVal.guardian_number.replace(/\s+/g, "");
+      const phoneNumberWithoutSpaces = dataVal.phone_number ? dataVal.phone_number.replace(/\s+/g, "") : "";
+      const guardianNumberWithoutSpaces = dataVal.guardian_number ? dataVal.guardian_number.replace(/\s+/g, "") : "";
 
       const storeData = {
         primary_school: dataVal.primary_school,
@@ -81,11 +81,11 @@ const NewStudents = ({ setSelectedPage }) => {
         desired_course_A: dataVal.course_id,
       };
 
-      if (phoneNumberWithoutSpaces.length < 8 || phoneNumberWithoutSpaces.length > 13) {
+      if (phoneNumberWithoutSpaces && (phoneNumberWithoutSpaces.length < 8 || phoneNumberWithoutSpaces.length > 13)) {
         return;
       }
 
-      if (guardianNumberWithoutSpaces.length < 8 || guardianNumberWithoutSpaces.length > 13) {
+      if (guardianNumberWithoutSpaces && (guardianNumberWithoutSpaces.length < 8 || guardianNumberWithoutSpaces.length > 13)) {
         return;
       }
 
@@ -305,9 +305,9 @@ const NewStudents = ({ setSelectedPage }) => {
           placeholder="Unesite broj telefona učenika"
           defaultValue="+387"
           {...register("phone_number", {
-            required: "Polje je obavezno!",
             validate: {
               validNumber: (value) => {
+                if (!value) return true; // Skip validation if the field is empty
                 const phoneNumberWithoutSpaces = value.replace(/\s+/g, "");
                 const isValid = /^\+387\d{6,9}$/.test(phoneNumberWithoutSpaces);
                 if (!isValid) {
@@ -335,9 +335,9 @@ const NewStudents = ({ setSelectedPage }) => {
             placeholder="Unesite broj telefona staratelja"
             defaultValue="+387"
             {...register("guardian_number", {
-              required: "Polje je obavezno!",
               validate: {
                 validNumber: (value) => {
+                  if (!value) return true; // Skip validation if the field is empty
                   const phoneNumberWithoutSpaces = value.replace(/\s+/g, "");
                   const isValid = /^\+387\d{6,9}$/.test(phoneNumberWithoutSpaces);
                   if (!isValid) {
@@ -399,8 +399,8 @@ const NewStudents = ({ setSelectedPage }) => {
             {...register("special_case", { required: "Polje je obavezno!" })}
           >
             <option value="regular">Regular student</option>
-            <option value="invalid">Invaliditet</option>
-            <option value="others">Ostali</option>
+            <option value="generation_best_student">Učenik generacije</option>
+            <option value="unconditional">Bezuslovni</option>
           </select>
           {errors.special_case && (
             <p className="text-red-500 italic">
