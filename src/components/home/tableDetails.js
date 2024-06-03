@@ -91,30 +91,7 @@ const TableDetails = ({ courseId }) => {
           console.error("No student data available.");
         }
       }
-      // Sorting the students by points;
-      studentsData.sort((a, b) => {
-        if (a.status !== 'regular' && b.status === 'regular') {
-            return -1;
-        } else if (a.status === 'regular' && b.status !== 'regular') {
-            return 1;
-        } else {
-            return b.total - a.total;
-        }
-    }); 
-    setStudents((prevStudents) => {
-      const mergedStudents = [...prevStudents, ...studentsData];
-      mergedStudents.sort((a, b) => {
-        if (a.status !== 'regular' && b.status === 'regular') {
-            return -1;
-        } else if (a.status === 'regular' && b.status !== 'regular') {
-            return 1;
-        } else {
-            return b.total - a.total;
-        }
-      });
-      return mergedStudents;
-
-    });
+      setStudents((prevStudents) => [...prevStudents, ...studentsData]);
     } catch (error) {
       console.error("Error fetching students:", error);
     } finally {
@@ -141,6 +118,8 @@ const TableDetails = ({ courseId }) => {
     fetchStudents();
   };
 
+  const fullCourseName = students.length > 0 ? students[0].full_course_name : "";
+
   return (
     <div className="full-w overflow-x-auto">
       <div className="flex">
@@ -160,6 +139,7 @@ const TableDetails = ({ courseId }) => {
               students={students}
               specialScoreNames={specialScoreNames}
               courseId={courseId}
+              fullCourseName={fullCourseName}
             />
           }
           fileName="tabela.pdf"
@@ -248,8 +228,13 @@ const TableDetails = ({ courseId }) => {
                 {studentIndex + 1}
               </td>
               {[
-                `${student?.last_name} ${student?.name}${student.status !== 'regular' ? '*' : ''}`,
-                student?.primary_school,
+                 <div>
+                 {student?.last_name} {student?.name}
+                 {student.status === 'generation_best_student' && (
+                   <span className="text-red-500"> (UG)</span>
+                 )}
+                 {student.status === 'unconditional' && '*'}
+               </div>,
                 ...Object.values(student?.averageScores || {}),
                 student?.sv,
                 ...specialScoreNames.map((scoreName) => (
