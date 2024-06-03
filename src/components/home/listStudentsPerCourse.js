@@ -62,16 +62,6 @@ const ListStudentsPerCourse = ({ courseId }) => {
     return lastNameMatch || firstNameMatch;
   });
 
-  const sortedStudents = [...filteredStudents].sort((a, b) => {
-    if (a.status !== "regular" && b.status === "regular") {
-      return -1;
-    } else if (a.status === "regular" && b.status !== "regular") {
-      return 1;
-    } else {
-      return b.total_points - a.total_points;
-    }
-  });
-
   const visiblePages = [pageNo - 1, pageNo, pageNo + 1].filter(
     (page) => page > 0 && page <= totalPages
   );
@@ -135,7 +125,7 @@ const ListStudentsPerCourse = ({ courseId }) => {
         </div>
       </div>
     )}
-    {sortedStudents.length > 0 ? (
+    {filteredStudents.length > 0 ? (
       <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
         <dl className="sm:divide-y sm:divide-gray-200">
           {!isMobile && !isTablet && !isMiniTablet && (
@@ -156,16 +146,19 @@ const ListStudentsPerCourse = ({ courseId }) => {
               <dt className="text-gray-700 font-bold min-w-[10rem]">Bodovi</dt>
             </div>
           )}
-          {sortedStudents.map((item, index) => (
-            <div
-              key={index + (pageNo - 1) * noPerPage}
-              className="py-4 sm:grid sm:grid-cols-3 sm:gap-44 sm:py-5 sm:px-6"
-            >
-              <div className="text-sm font-medium text-gray-500 first-letter:capitalize">
-                <div>
-                  {(index + 1) + (pageNo - 1) * noPerPage}. {item.last_name} {item.name}{item.status !== 'regular' && '*'}
-                </div>
+          {filteredStudents.map((item, index) => (
+            <div 
+            key={index + (pageNo - 1) * noPerPage}
+            className="py-4 sm:grid sm:grid-cols-3 sm:gap-44 sm:py-5 sm:px-6"
+          >
+            <div className="text-sm font-medium text-gray-500 first-letter:capitalize">
+              <div>
+                {index + 1 + (pageNo - 1) * noPerPage}. {(item.status === 'generation_best_student') && (
+                  <span className="text-red-500">(UG) </span>
+                )} {item.last_name} {item.name}
+                {item.status === 'unconditional' && '*'}
               </div>
+            </div>
               {isMobile && (
                 <div className="mt-0.5 text-sm text-gray-900 flex justify-between items-center">
                   <div>
@@ -203,7 +196,7 @@ const ListStudentsPerCourse = ({ courseId }) => {
       </p>
     )}
     {/* Conditionally render pagination buttons if there are students */}
-    {sortedStudents.length > 0 && (
+    {filteredStudents.length > 0 && (
       <div className="flex justify-center mt-4">
         <button
           onClick={() => handlePageClick(pageNo - 1)}
@@ -238,81 +231,61 @@ const ListStudentsPerCourse = ({ courseId }) => {
   
   // Function to retrieve all students
   export const getAllStudents = async (courseId, pageNo = 1, noPerPage = 10) => {
-    try {
-      const resp = await fetch(
-        `${Url}api/sec-students/student-list/1/${courseId}/${pageNo}/${noPerPage}/`,
-        {
-          method: "GET",
-        }
-      );
-      const studentsData = await resp.json();
-  
-      const totalPupils = studentsData.total_pupils_on_this_course;
-  
-      console.log("studentsData:", studentsData);
-  
-      const extractedStudents = [];
-  
-      const studentEntries = Object.values(studentsData).filter((entry) =>
-        Array.isArray(entry)
-      );
-  
-      for (const studentEntry of studentEntries) {
-        const student = {
-          // [0];
-          course_name: studentEntry[0]?.course_name || "",
-          id: studentEntry[0]?.pupil_id || null,
-          name: studentEntry[0]?.pupil_name || "",
-          last_name: studentEntry[0]?.pupil_last_name || "",
-          middle_name: studentEntry[0]?.pupil_middle_name || "",
-          primary_school: studentEntry[0]?.pupil_primary_school || "",
-          status: studentEntry[0]?.pupil_status || "",
-          desired_course: studentEntry[0]?.pupil_desired_course || "",
-          // [1];
-          total_points: studentEntry[1]?.total_score || 0,
-          // Statictics array [2][0];
-          average_VI: studentEntry[2]?.statistics[0]?.average_VI || 0,
-          average_VII: studentEntry[2]?.statistics[0]?.average_VII || 0,
-          average_VIII: studentEntry[2]?.statistics[0]?.average_VIII || 0,
-          average_IX: studentEntry[2]?.statistics[0]?.average_IX || 0,
-          points: studentEntry[2]?.statistics[0]?.points || 0,
-          // Total special points [2][1];
-          total_special_points:
-            studentEntry[2]?.statistics[1]?.total_special_points || 0,
-          // Acknowledgments [2][2];
-          total_federal_points:
-            studentEntry[2]?.statistics[2]?.acknowledgments
-              ?.total_federal_points || 0,
-          total_canton_points:
-            studentEntry[2]?.statistics[2]?.acknowledgments
-              ?.total_canton_points || 0,
-          total_district_points:
-            studentEntry[2]?.statistics[2]?.acknowledgments
-              ?.total_district_points || 0,
-          total_ack_points:
-            studentEntry[2]?.statistics[2]?.acknowledgments?.total_ack_points ||
-            0,
-          // Special courses grades [2][1];
-          sc_per_grade: studentEntry[2]?.statistics[1]?.sc_per_grade || null,
-        };
-  
-        // Extracting special courses grade data;
-        const scPerGrade = studentEntry[2]?.statistics[1]?.sc_per_grade || [];
-        const formattedScPerGrade = scPerGrade.map((grade) => ({
-          class_code: grade.class_code || "",
-          course_code: grade.course_code || "",
-          score: grade.score || 0,
-        }));
-  
-        student.sc_per_grade = formattedScPerGrade;
-  
-        extractedStudents.push(student);
+  try {
+    const resp = await fetch(
+      `${Url}api/sec-students/student-list/1/${courseId}/${pageNo}/${noPerPage}/`,
+      {
+        method: "GET",
       }
-      return { extractedStudents, totalPupils };
-    } catch (e) {
-      console.error("Error fetching student data:", e);
-      return [];
-    }
-  };
-  
+    );
+    const responseData = await resp.json();
+
+    const totalPupils = responseData.total_pupils_on_this_course;
+    const studentsData = responseData.students;
+
+    console.log("studentsData:", studentsData);
+
+    const extractedStudents = [];
+
+    studentsData.forEach((studentEntry) => {
+      const scPerGrade = studentEntry[0]?.statistics[1]?.sc_per_grade || [];
+      const formattedScPerGrade = scPerGrade.map((grade) => ({
+        class_code: grade.class_code || "",
+        course_code: grade.course_code || "",
+        score: grade.score || 0,
+      }));
+
+      const student = {
+        id: studentEntry[0]?.pupil_id || null,
+        name: studentEntry[0]?.pupil_name || "",
+        last_name: studentEntry[0]?.pupil_last_name || "",
+        middle_name: studentEntry[0]?.pupil_middle_name || "",
+        primary_school: studentEntry[0]?.pupil_primary_school || "",
+        status: studentEntry[0]?.pupil_status || "",
+        full_course_name: studentEntry[0]?.course_name || "",
+        course_name: studentEntry[0]?.course_name || "",
+        total_points: studentEntry[0]?.total_score || 0,
+        average_VI: studentEntry[0]?.statistics[0]?.average_VI || 0,
+        average_VII: studentEntry[0]?.statistics[0]?.average_VII || 0,
+        average_VIII: studentEntry[0]?.statistics[0]?.average_VIII || 0,
+        average_IX: studentEntry[0]?.statistics[0]?.average_IX || 0,
+        points: studentEntry[0]?.statistics[0]?.points || 0,
+        total_special_points: studentEntry[0]?.statistics[1]?.total_special_points || 0,
+        total_federal_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_federal_points || 0,
+        total_canton_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_canton_points || 0,
+        total_district_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_district_points || 0,
+        total_ack_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_ack_points || 0,
+        sc_per_grade: formattedScPerGrade,
+      };
+
+      extractedStudents.push(student);
+    });
+
+    return { extractedStudents, totalPupils };
+  } catch (e) {
+    console.error("Error fetching student data:", e);
+    return [];
+  }
+};
+
   export default ListStudentsPerCourse;
