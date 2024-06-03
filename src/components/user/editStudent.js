@@ -183,8 +183,8 @@ const EditStudent = ({ studentId }) => {
                                 onChange={(e) => handleInputChange(e, 'special_case')}
                                 className="w-full border border-gray-300 rounded-md mb-2 px-4 py-2">
                                 <option value="regular">Regular student</option>
-                                <option value="invalid">Invaliditet</option>
-                                <option value="others">Ostali</option>
+                                <option value="generation_best_student">Učenik generacije</option>
+                                <option value="unconditional">Bezuslovni</option>
                             </select>
                         <div className="flex justify-center pt-4">
                             <button onClick={handleFormSubmit} className="w-40 bg-gray-300 text-gray-700 rounded-md px-4 py-2 hover:bg-gray-400 transition-colors shadow-lg mr-2">Sačuvaj</button>
