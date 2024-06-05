@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
-import EditStudent from '../../../../src/components/user/editStudent';
+import EditStudent from '../../../../../src/components/user/editStudent';
 import { useRouter } from 'next/router';
-import GradePage from '../../../../src/components/user/gradePage';
+import GradePage from '../../../../../src/components/user/gradePage'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
-import StudentAcknowledgments from '../../../../src/components/user/studentAcknowledgments'
-import StudentTransition from '../../../../src/components/user/studentTransition';
+import StudentAcknowledgments from '../../../../../src/components/user/studentAcknowledgments'
+import StudentTransition from '../../../../../src/components/user/studentTransition';
 import { useSession } from 'next-auth/react';
 
 
 const EditPage = (props) => {
     const router = useRouter();
     const { id } = router.query;
+    const { courseCode } = router.query;
     const idExists = id !== undefined && id !== null;
+    const courseExists = courseCode !== undefined && courseCode !== null;
     const [selectedTab, setSelectedTab] = useState("editStudent");
     const { data } = useSession()
 
@@ -96,11 +98,11 @@ const EditPage = (props) => {
             </div>
             <div>
                 {selectedTab === "editStudent" && idExists && <EditStudent studentId={id} />}
-                {selectedTab === "sixthGrade" && idExists && <GradePage studentId={id} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
-                {selectedTab === "seventhGrade" && idExists && <GradePage studentId={id} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
-                {selectedTab === "eightGrade" && idExists && <GradePage studentId={id} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
-                {selectedTab === "ninthGrade" && idExists && <GradePage studentId={id} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
-                {selectedTab === "studentAcknowledgments" && idExists && <StudentAcknowledgments studentId={id} setSelectedPage={setSelectedTab} />}
+                {selectedTab === "sixthGrade" && idExists && courseExists && <GradePage studentId={id} courseCode={courseCode} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
+                {selectedTab === "seventhGrade" && idExists && courseExists && <GradePage studentId={id} courseCode={courseCode} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
+                {selectedTab === "eightGrade" && idExists && courseExists && <GradePage studentId={id} courseCode={courseCode} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
+                {selectedTab === "ninthGrade" && idExists && courseExists && <GradePage studentId={id} courseCode={courseCode} setSelectedPage={setSelectedTab} selectedTab={selectedTab} />}
+                {selectedTab === "studentAcknowledgments" && idExists && courseExists && <StudentAcknowledgments studentId={id} setSelectedPage={setSelectedTab} />}
                 {selectedTab === "studentTransition" && idExists && <StudentTransition studentId={id} setSelectedPage={setSelectedTab} />}
             </div>
         </div>

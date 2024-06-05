@@ -205,7 +205,7 @@ const ListStudents = () => {
                                             {item.date_of_enrollment}
                                         </dd>
                                         <div className="flex items-center">
-                                        <Link href={`/user/pupils/${item.id}/edit`} passHref>
+                                        <Link href={`/user/pupils/${item.id}/${item.desired_course_A}/edit`} passHref>
                                             <div
                                                 className="mt-1 text-sm text-black bg-gray-300 sm:col-span-1 px-4 py-2 hover:bg-gray-400 rounded-md flex items-center justify-center shadow-lg ml-2"
                                                 style={{
