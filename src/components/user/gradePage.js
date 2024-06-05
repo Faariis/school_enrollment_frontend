@@ -3,12 +3,15 @@ import GradeForm from '../form/gradesForm';
 import { useSession } from 'next-auth/react';
 import Url from '../../../constants';
 
-const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
+const GradePage = ({ studentId, courseCode, setSelectedPage, selectedTab }) => {
   const { data } = useSession();
   const [gradeSubjects, setGradeSubjects] = useState([]);
   const [classId, setClassId] = useState('');
   const [existingScores, setExistingScores] = useState([]);
   const [isPut, setIsPut] = useState(false);
+  const [specialCourses, setSpecialCourses] = useState({});
+
+  console.log(courseCode)
 
   // Function to map the current tab to the next tab
   const getNextTab = (currentTab) => {
@@ -19,6 +22,24 @@ const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
       ninthGrade: 'studentAcknowledgments',
     };
     return tabToGradeMap[currentTab];
+  };
+
+  const fetchSpecialCourses = async (courseCode) => {
+    try {
+      const response = await fetch(`${Url}api/sec-students/student-list/1/special-courses/${courseCode}`, {
+        headers: {
+          Authorization: `Bearer ${data.user.token}`,
+        },
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        setSpecialCourses(responseData);
+      } else {
+        console.error('Failed to fetch special courses!');
+      }
+    } catch (error) {
+      console.error('Error fetching special courses:', error);
+    }
   };
 
   const fetchData = async (grade, studentId) => {
@@ -77,6 +98,7 @@ const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
 
   useEffect(() => {
     fetchData(selectedTab === 'sixthGrade' ? '6' : selectedTab === 'seventhGrade' ? '7' : selectedTab === 'eightGrade' ? '8' : '9', studentId);
+    fetchSpecialCourses(courseCode);
   }, [selectedTab, studentId]);
 
   const handleSubmit = async (dataVal) => {
@@ -161,7 +183,7 @@ const GradePage = ({ studentId, setSelectedPage, selectedTab }) => {
     }
   };
 
-  return <GradeForm onSubmit={handleSubmit} onDelete={handleDeleteGrade} classId={classId} subjects={gradeSubjects} pupilId={studentId} existingScores={existingScores} setIsPut={isPut} />;
+  return <GradeForm onSubmit={handleSubmit} onDelete={handleDeleteGrade} classId={classId} subjects={gradeSubjects} pupilId={studentId} existingScores={existingScores} setIsPut={isPut} specialCourses={specialCourses}/>;
 };
 
 export default GradePage;
