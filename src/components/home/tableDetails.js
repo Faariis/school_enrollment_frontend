@@ -50,7 +50,7 @@ const TableDetails = ({ courseId }) => {
           };
         });
       } else {
-        // If we referesh the page it loads this function (API call);
+        // If we refresh the page it loads this function (API call);
         const getStudentData = await getAllStudents(
           courseId,
           pageNo,
@@ -107,29 +107,43 @@ const TableDetails = ({ courseId }) => {
     return <div>Učitavanje...</div>;
   }
 
-  const specialScoreNames = Object.keys(
-    students[0]?.specialScores || {}
-  ).filter((key) => {
-    const classCode = key.split(" ")[0];
-    return classCode === "VIII" || classCode === "IX";
-  });
+  // Collect all possible special score names for both VIII and IX from all students
+  const allSpecialScores = students.reduce((acc, student) => {
+    Object.keys(student.specialScores || {}).forEach((key) => {
+      if (!acc.includes(key)) {
+        acc.push(key);
+      }
+    });
+    return acc;
+  }, []);
+
+  // Filter special score names for VIII and IX
+  const specialScoreNamesVIII = allSpecialScores.filter(
+    (key) => key.startsWith("VIII")
+  );
+  const specialScoreNamesIX = allSpecialScores.filter(
+    (key) => key.startsWith("IX")
+  );
 
   const loadMoreStudents = async () => {
     fetchStudents();
   };
 
-  const fullCourseName = students.length > 0 ? students[0].full_course_name : "";
+  const fullCourseName =
+    students.length > 0 ? students[0].full_course_name : "";
 
   return (
     <div className="full-w overflow-x-auto">
       <div className="flex">
-      <button
-        onClick={() => router.push(`/home/${courseId}`)}
-        className="flex items-center px-2 py-1 rounded-md hover:bg-gray-300 focus:outline-none"
-      >
-        <ChevronLeftIcon className="w-6 h-6" />{" "}
-      </button>
-      <div className="font-bold text-gray-800 ml-2 mt-1">Smjer: {courseId}</div>
+        <button
+          onClick={() => router.push(`/home/${courseId}`)}
+          className="flex items-center px-2 py-1 rounded-md hover:bg-gray-300 focus:outline-none"
+        >
+          <ChevronLeftIcon className="w-6 h-6" />{" "}
+        </button>
+        <div className="font-bold text-gray-800 ml-2 mt-1">
+          Smjer: {courseId}
+        </div>
       </div>
       {session && (
         <PDFDownloadLink
@@ -137,7 +151,7 @@ const TableDetails = ({ courseId }) => {
           document={
             <PDFDocument
               students={students}
-              specialScoreNames={specialScoreNames}
+              specialScoreNames={[...specialScoreNamesVIII, ...specialScoreNamesIX]}
               courseId={courseId}
               fullCourseName={fullCourseName}
             />
@@ -163,7 +177,9 @@ const TableDetails = ({ courseId }) => {
               Object.keys(students[0]?.averageScores).length > 0 && (
                 <>
                   <th
-                    colSpan={Object.keys(students[0]?.averageScores).length + 1}
+                    colSpan={
+                      Object.keys(students[0]?.averageScores).length + 1
+                    }
                     scope="colgroup"
                     className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200"
                   >
@@ -203,16 +219,17 @@ const TableDetails = ({ courseId }) => {
                 ? Object.keys(students[0]?.averageScores)
                 : []),
               "SV (Opšti kriterij)",
-              ...specialScoreNames,
+              ...specialScoreNamesVIII,
+              ...specialScoreNamesIX,
               "SV (posebni kriterij)",
               "Federalno",
               "Kantonalno",
               "Općinsko",
               "SV (specijalni kriterij)",
               "Ukupno",
-            ].map((header) => (
+            ].map((header, index) => (
               <th
-                key={header}
+                key={index}
                 scope="col"
                 className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200"
               >
@@ -228,18 +245,22 @@ const TableDetails = ({ courseId }) => {
                 {studentIndex + 1}
               </td>
               {[
-                 <div>
-                 {student?.last_name} {student?.name}
-                 {student.status === 'generation_best_student' && (
-                   <span className="text-red-500"> (UG)</span>
-                 )}
-                 {student.status === 'unconditional' && '*'}
-               </div>,
+                <div>
+                  {student?.last_name} {student?.name}
+                  {student.status === "generation_best_student" && (
+                    <span className="text-red-500"> (UG)</span>
+                  )}
+                  {student.status === "unconditional" && "*"}
+                </div>,
+                student?.primary_school,
                 ...Object.values(student?.averageScores || {}),
                 student?.sv,
-                ...specialScoreNames.map((scoreName) => (
-                  student?.specialScores?.[scoreName] || 0
-                )),
+                ...specialScoreNamesVIII.map(
+                  (scoreName) => student?.specialScores?.[scoreName] || 0
+                ),
+                ...specialScoreNamesIX.map(
+                  (scoreName) => student?.specialScores?.[scoreName] || 0
+                ),
                 student?.sv2,
                 ...Object.values(student?.acknowledgmentPoints || {}),
                 student?.sv3,
@@ -267,9 +288,9 @@ const TableDetails = ({ courseId }) => {
       ) : (
         students.length > 0 && (
           <div className="flex justify-center items-center h-10 rounded w-60 cursor-pointer border mt-20 bg-gray-800 text-white">
-              <span>Svi učenici su učitani</span>
+            <span>Svi učenici su učitani</span>
           </div>
-      )
+        )
       )}
     </div>
   );
