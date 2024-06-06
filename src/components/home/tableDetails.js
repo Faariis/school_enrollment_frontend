@@ -165,7 +165,7 @@ const TableDetails = ({ courseId }) => {
       )}
       <table className="min-w-full border border-gray-200 mt-2">
         <thead className="bg-gray-50">
-          <tr className="border-b border-gray-200">
+          <tr className="border-gray-200">
             <th
               colSpan="3"
               scope="colgroup"
@@ -201,6 +201,57 @@ const TableDetails = ({ courseId }) => {
                   >
                     III-Specijalni kriterij - Uzimaju se bodovi iz takmičenja za
                     VIII i IX razred i saberu.
+                  </th>
+                  <th
+                    colSpan="1"
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-gray-200"
+                  ></th>
+                </>
+              )}
+          </tr>
+          <tr className="border-b border-gray-200">
+            <th
+              colSpan="3"
+              scope="colgroup"
+              className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+            </th>
+            {students[0]?.averageScores &&
+              Object.keys(students[0]?.averageScores).length > 0 && (
+                <>
+                  <th
+                    colSpan={
+                      Object.keys(students[0]?.averageScores).length + 1
+                    }
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200"
+                  >
+                  </th>
+                  <th
+                    colSpan="3"
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-t border-gray-200"
+                  >
+                    VIII
+                  </th>
+                  <th
+                    colSpan="3"
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-t border-gray-200"
+                  >
+                    IX
+                  </th>
+                  <th
+                    colSpan="1"
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-t border-gray-200"
+                  >
+                  </th>
+                  <th
+                    colSpan="4"
+                    scope="colgroup"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200"
+                  >
                   </th>
                   <th
                     colSpan="1"
