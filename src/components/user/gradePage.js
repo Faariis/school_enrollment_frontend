@@ -11,8 +11,6 @@ const GradePage = ({ studentId, courseCode, setSelectedPage, selectedTab }) => {
   const [isPut, setIsPut] = useState(false);
   const [specialCourses, setSpecialCourses] = useState({});
 
-  console.log(courseCode)
-
   // Function to map the current tab to the next tab
   const getNextTab = (currentTab) => {
     const tabToGradeMap = {
@@ -24,19 +22,25 @@ const GradePage = ({ studentId, courseCode, setSelectedPage, selectedTab }) => {
     return tabToGradeMap[currentTab];
   };
 
-  const fetchSpecialCourses = async (courseCode) => {
+  const fetchSpecialCourses = async (grade, studentId, courseCode) => {
     try {
-      const response = await fetch(`${Url}api/sec-students/student-list/1/special-courses/${courseCode}`, {
+      const response = await fetch(`${Url}api/sec-students/student-list/primary-school/class/${grade}/student/${studentId}/`, {
         headers: {
           Authorization: `Bearer ${data.user.token}`,
         },
       });
-      if (response.ok) {
-        const responseData = await response.json();
-        setSpecialCourses(responseData);
-      } else {
-        console.error('Failed to fetch special courses!');
-      }
+      const responseData = await response.json();
+      const specialCourses = responseData.special_courses;
+      console.log(courseCode)
+
+      const matchingSpecialCourses = Object.entries(specialCourses)
+      .filter(([key, value]) => key.includes(courseCode))
+      .reduce((obj, [key, value]) => {
+        obj[key] = value;
+        return obj;
+      }, {});
+
+      setSpecialCourses(matchingSpecialCourses);
     } catch (error) {
       console.error('Error fetching special courses:', error);
     }
@@ -98,8 +102,8 @@ const GradePage = ({ studentId, courseCode, setSelectedPage, selectedTab }) => {
 
   useEffect(() => {
     fetchData(selectedTab === 'sixthGrade' ? '6' : selectedTab === 'seventhGrade' ? '7' : selectedTab === 'eightGrade' ? '8' : '9', studentId);
-    fetchSpecialCourses(courseCode);
-  }, [selectedTab, studentId]);
+    fetchSpecialCourses(selectedTab === 'sixthGrade' ? '6' : selectedTab === 'seventhGrade' ? '8' : selectedTab === 'eightGrade' ? '8' : '9', studentId, courseCode);
+  }, [selectedTab, studentId, courseCode]);
 
   const handleSubmit = async (dataVal) => {
     const tabToGradeMap = {
