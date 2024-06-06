@@ -232,10 +232,10 @@ const ListStudentsPerCourse = ({ courseId }) => {
   // Function to retrieve all students
   export const getAllStudents = async (courseId, pageNo = 1, noPerPage = 10) => {
   try {
-    let studentNumber = courseId === "RTIA" ? 44 : 22;
-    
+    //let studentNumber = courseId === "RTIA" ? 44 : 22;
+
     const resp = await fetch(
-      `${Url}api/sec-students/student-list/1/${courseId}/statistics_ordered/${pageNo}/${noPerPage}/${studentNumber}`,
+      `${Url}api/sec-students/student-list/1/${courseId}/statistics_ordered/${pageNo}/${noPerPage}/`,
       {
         method: "GET",
       }

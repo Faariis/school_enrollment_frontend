@@ -121,14 +121,14 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
   const remainingStudents = regularStudents.slice(maxAcceptedStudents - generationBestStudents.length);
 
   // Number of students on first page
-  const numStudentsOnFirstPage = Math.min(28, acceptedStudents.length);
+  const numStudentsOnFirstPage = Math.min(27, acceptedStudents.length);
 
   // Split accepted students into pages
   const firstPageAcceptedStudents = acceptedStudents.slice(0, numStudentsOnFirstPage);
   const secondPageAcceptedStudents = acceptedStudents.slice(numStudentsOnFirstPage);
 
   // Split remaining students into pages for non-accepted students
-  const numNonAcceptedPerPage = 28;
+  const numNonAcceptedPerPage = 27; //maybe 27
   const nonAcceptedStudentPages = [];
   for (let i = 0; i < remainingStudents.length; i += numNonAcceptedPerPage) {
     nonAcceptedStudentPages.push(remainingStudents.slice(i, i + numNonAcceptedPerPage));
@@ -146,12 +146,22 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
           <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 2 }}>Smjer: {sanitizedCourseName}</Text>
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.headerCell, { width: '30%' }]} colSpan={3}>Generalije</Text>
-              <Text style={[styles.tableCell, styles.headerCell, { width: '20%' }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderBottomWidth: 0 }]} colSpan={3}>Generalije</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderBottomWidth: 0 }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
               <Text style={[styles.tableCell, styles.headerCell, { width: '28%' }]} colSpan={7}>II-Posebni kriterij - Uzimaju se relevantni nastavni predmeti iz završnih razreda VIII i IX i saberu. (max: 30)</Text>
-              <Text style={[styles.tableCell, styles.headerCell, { width: '13%' }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderBottomWidth: 0 }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
               <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0 }]} colSpan={1}></Text>
               <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0 }]} colSpan={1}></Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderTopWidth: 0  }]} colSpan={3}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderTopWidth: 0 }]} colSpan={5}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>VIII</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>IX</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '4%' }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderTopWidth: 0  }]} colSpan={4}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
             </View>
             <View style={styles.tableRow}>
               {['RB', 'Ime i prezime', 'Osnovna škola', ...(students[0]?.averageScores ? Object.keys(students[0]?.averageScores) : []), 'SV-I', ...specialScoreNames, 'SV-II', 'O', 'K', 'F', 'SV-III', 'Ukupno', 'Strani jezik'].map((header, index) => (
@@ -178,7 +188,7 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
                 </Text>
                 <Text style={[styles.tableCell, { width: '11%' }]}>{student.primary_school || ''}</Text>
                 {Object.values(student?.averageScores || {}).map((average, index) => (
-                  <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average}</Text>
+                  <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average.toFixed(2)}</Text>
                 ))}
                 <Text style={[styles.tableCell, { width: '4%' }]}>{student.sv || '0'}</Text>
                 {specialScoreNames.map((specialScore, index) => (
@@ -210,13 +220,23 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
             <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 10 }}>JU TEHNICKA SKOLA ZENICA</Text>
             <View style={styles.table}>
               <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '30%' }]} colSpan={3}>Generalije</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '20%' }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '28%' }]} colSpan={7}>II-Posebni kriterij - Uzimaju se relevantni nastavni predmeti iz završnih razreda VIII i IX i saberu. (max: 30)</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '13%' }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
-                <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0 }]} colSpan={1}></Text>
-                <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0 }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderBottomWidth: 0 }]} colSpan={3}>Generalije</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderBottomWidth: 0 }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '28%' }]} colSpan={7}>II-Posebni kriterij - Uzimaju se relevantni nastavni predmeti iz završnih razreda VIII i IX i saberu. (max: 30)</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderBottomWidth: 0 }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0 }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0 }]} colSpan={1}></Text>
               </View>
+              <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderTopWidth: 0  }]} colSpan={3}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderTopWidth: 0 }]} colSpan={5}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>VIII</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>IX</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '4%' }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderTopWidth: 0  }]} colSpan={4}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
+            </View>
               <View style={styles.tableRow}>
                 {['RB', 'Ime i prezime', 'Osnovna škola', ...(students[0]?.averageScores ? Object.keys(students[0]?.averageScores) : []), 'SV-I', ...specialScoreNames, 'SV-II', 'O', 'K', 'F', 'SV-III', 'Ukupno', 'Strani jezik'].map((header, index) => (
                   <Text
@@ -242,7 +262,7 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
                   </Text>
                   <Text style={[styles.tableCell, { width: '11%' }]}>{student.primary_school || ''}</Text>
                   {Object.values(student?.averageScores || {}).map((average, index) => (
-                    <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average}</Text>
+                    <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average.toFixed(2)}</Text>
                   ))}
                   <Text style={[styles.tableCell, { width: '4%' }]}>{student.sv || '0'}</Text>
                   {specialScoreNames.map((specialScore, index) => (
@@ -274,13 +294,23 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
             <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 10 }}>Spisak ucenika koji nisu primljeni u strucno zvanje {sanitizedCourseName}</Text>
             <View style={styles.table}>
               <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '30%' }]} colSpan={3}>Generalije</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '20%' }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '28%' }]} colSpan={7}>II-Posebni kriterij - Uzimaju se relevantni nastavni predmeti iz završnih razreda VIII i IX i saberu. (max: 30)</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { width: '13%' }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
-                <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0 }]} colSpan={1}></Text>
-                <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0 }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderBottomWidth: 0 }]} colSpan={3}>Generalije</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderBottomWidth: 0 }]} colSpan={5}>I-Opšti kriterij - Uzima se USPJEH od VI do IX razreda O.Š. zatim se sabere i pomnoži sa 3. (max: 60)</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '28%' }]} colSpan={7}>II-Posebni kriterij - Uzimaju se relevantni nastavni predmeti iz završnih razreda VIII i IX i saberu. (max: 30)</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderBottomWidth: 0 }]} colSpan={4}>III-Specijalni kriterij - Bodovi iz takmičenja.</Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0 }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0 }]} colSpan={1}></Text>
               </View>
+              <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '30%', borderTopWidth: 0  }]} colSpan={3}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '20%', borderTopWidth: 0 }]} colSpan={5}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>VIII</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '12%' }]} colSpan={3}>IX</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '4%' }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, { width: '13%', borderTopWidth: 0  }]} colSpan={4}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '5%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
+              <Text style={[styles.tableCell, styles.headerCell, styles.noBottomBorder, { width: '4%', marginBottom: 0, borderTopWidth: 0  }]} colSpan={1}></Text>
+            </View>
               <View style={styles.tableRow}>
                 {['RB', 'Ime i prezime', 'Osnovna škola', ...(students[0]?.averageScores ? Object.keys(students[0]?.averageScores) : []), 'SV-I', ...specialScoreNames, 'SV-II', 'O', 'K', 'F', 'SV-III', 'Ukupno', 'Strani jezik'].map((header, index) => (
                   <Text
@@ -306,7 +336,7 @@ const PDFDocument = ({ students, specialScoreNames, courseId, fullCourseName }) 
                   </Text>
                   <Text style={[styles.tableCell, { width: '11%' }]}>{student.primary_school || ''}</Text>
                   {Object.values(student?.averageScores || {}).map((average, index) => (
-                    <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average}</Text>
+                    <Text key={index} style={[styles.tableCell, { width: '4%' }]}>{average.toFixed(2)}</Text>
                   ))}
                   <Text style={[styles.tableCell, { width: '4%' }]}>{student.sv || '0'}</Text>
                   {specialScoreNames.map((specialScore, index) => (
