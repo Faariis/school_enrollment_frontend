@@ -101,8 +101,13 @@ const GradeForm = ({ onSubmit, onDelete, classId, subjects, pupilId, existingSco
     })
   };
 
-  // Get special subjects for the current class ID
-  const specialSubjects = (classId === 'VIII' || classId === 'IX') ? (specialCourses[classId] || []) : [];
+  let specialCourseCodes = [];
+
+  if (classId === 'VIII' || classId === 'IX') {
+    specialCourseCodes = Object.values(specialCourses).flatMap(course => course);
+  }
+
+  console.log(specialCourseCodes)
 
   return (
     <div className="flex justify-center items-start min-h-screen bg-gray-100 bg-opacity-100">
@@ -113,11 +118,11 @@ const GradeForm = ({ onSubmit, onDelete, classId, subjects, pupilId, existingSco
             {subjects.map((subject, index) => (
               <div key={subject} className="flex flex-col mb-4">
                  <div className="flex items-center">
-                 <label htmlFor={subject} className={`text-gray-600 mb-2 ${specialSubjects.includes(subject) ? 'text-blue-900 font-bold' : ''}`}>
+                 <label htmlFor={subject} className={`text-gray-600 mb-2 ${specialCourseCodes.includes(subject) ? 'text-blue-900 font-bold' : ''}`}>
                    {subject}
                    {errors[subject] && (
                      <button
-                       className="ml-2 text-red-600"
+                      className="ml-2 text-red-600"
                        onClick={() => {
                          document.getElementById(subject).focus();
                        }}>*</button>
@@ -156,8 +161,8 @@ const GradeForm = ({ onSubmit, onDelete, classId, subjects, pupilId, existingSco
                       <button
                         type="button"
                         onClick={showExcellentGradesForm}
-                        className="ml-2 w-full md:w-40 bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 transition-colors shadow-lg">
-                        Postavi sve ocjene na 5
+                        className="ml-2 w-full md:w-40 bg-blue-700 text-white rounded-md px-4 py-2 hover:bg-blue-900 transition-colors shadow-lg">
+                        Sve ocjene 5
                       </button>
                       {existingScores.length > 0 && (
                       <button
