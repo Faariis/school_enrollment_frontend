@@ -16,7 +16,7 @@ const SidebarHome = ({ selectedPage, setSelectedPage }) => {
                 <div
                     onClick={() => setSelectedPage("listStudentsHome")}
                     className={`cursor-pointer border-b hover:bg-gray-100 py-2 px-5 first-letter:capitalize ${selectedPage === 'listStudentsHome' ? 'border-r-4 border-r-green-500' : ''}`}>
-                    <span>Prikaz učenika</span>
+                    <span>Pronađi učenika</span>
                 </div>
             </div>
         </div>

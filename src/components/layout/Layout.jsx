@@ -4,6 +4,7 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useSession } from "next-auth/react";
 import { signOut, signIn } from "next-auth/react";
+import Head from 'next/head';
 
 const navigation = [
     { name: 'Početna', href: '/', current: true },
@@ -35,6 +36,9 @@ export default function Layout({ children }) {
 
     return (
         <div className="min-h-screen flex flex-col">
+            <Head>
+                <title>Upis učenika</title>
+            </Head>
             <Disclosure as="nav" className="bg-gray-800">
                 {({ open }) => (
                     <>
