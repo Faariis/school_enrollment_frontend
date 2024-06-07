@@ -55,7 +55,7 @@ const Home = (props) => {
                   }`}
                 onClick={() => handlePageSelect("listStudentsHome")}
               >
-                Prikaz učenika
+                Pronađi učenika
               </button>
             </div>
           )}

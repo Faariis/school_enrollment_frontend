@@ -12,7 +12,7 @@ const ListStudents = () => {
     const { data } = useSession();
     const [studentsData, setStudentsData] = useState(null);
     const [nameInput, setNameInput] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false); // State for loading indicator
     const [error, setError] = useState('');
     const [showAllCourses, setShowAllCourses] = useState(false);
     const [selectedStudentIndex, setSelectedStudentIndex] = useState(null);
@@ -23,12 +23,9 @@ const ListStudents = () => {
 
     const getStudentPoints = async (name) => {
         try {
-            setLoading(true);
+            setLoading(true); // Set loading to true when fetching data
             const resp = await fetch(`${Url}api/sec-students/student-list/1/student/points-summary-all-courses/${name}/`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': data ? `Bearer ${data.user.token}` : null
-                }
             });
             if (resp.status === 404) {
                 setStudentsData(null);
@@ -47,9 +44,10 @@ const ListStudents = () => {
             console.log(e);
             setError('Učenik sa tim imenom ili prezimenom nije upisan.');
         } finally {
-            setLoading(false);
+            setLoading(false); // Set loading to false when done fetching data
         }
     };
+
 
     const handleInputChange = (event) => {
         setNameInput(event.target.value);
@@ -101,7 +99,7 @@ const ListStudents = () => {
                             Prikaži
                         </button>
                     </div>
-                    {studentsData && studentsData.length > 0 && (
+                    {studentsData && studentsData.length > 0 && !error && !loading && (
                      <div className="mt-3 flex">
                          <dt className={`${!isMobile && !isTablet && !isMiniTablet ? 'text-gray-700 font-bold ml-5 min-w-[19rem]' : isTablet ? 'text-gray-700 font-bold ml-10 min-w-[14rem]' : isMiniTablet ? 'text-gray-700 font-bold ml-5 mr-9' : isMiniMobile ? 'text-gray-700 font-bold ml-1' : 'text-gray-700 font-bold ml-2 mr-4'} ${isMobile ? 'text-xs' : ''}`}>Ime i prezime</dt>
                          <dt className={`${!isMobile && !isTablet && !isMiniTablet ? 'text-gray-700 font-bold min-w-[17rem]' : isTablet ? 'text-gray-700 font-bold min-w-[14rem]' : isMiniTablet ? 'text-gray-700 font-bold ml-5 mr-9' : isMiniMobile ? 'text-gray-700 font-bold ml-1 mr-1' : 'text-gray-700 font-bold ml-2 mr-4'} ${isMobile ? 'text-xs' : ''}`}>Trenutna pozicija</dt>
@@ -109,9 +107,9 @@ const ListStudents = () => {
                       </div>
                  )}
                 </div>
-                {error === '' && studentsData && studentsData.map((student, studentIndex) => (
+                {error === '' && studentsData && !loading && studentsData.map((student, studentIndex) => (
                     <div key={studentIndex} className="rounded-md">
-                        {Object.values(student.courses_short_statistics)
+                        {student && student.courses_short_statistics && Object.values(student.courses_short_statistics)
                         .filter(course => course.course_code === student.desired_course_code)
                         .sort((a, b) => b.total_points - a.total_points)
                         .map((course, courseIndex) => (
@@ -203,11 +201,12 @@ const ListStudents = () => {
                             ))}
                     </div>
                 ))}
-                {error !== '' && <p className="flex-grow text-center font-bold text-red-500">{error}</p>}
+                {/* Loading indicator */}
+                {loading && <p className="text-center font-bold">Loading...</p>}
+                {!loading && error !== '' && <p className="flex-grow text-center font-bold text-red-500">{error}</p>}
             </div>
         </div>
     );
 }
-
 
 export default ListStudents;
