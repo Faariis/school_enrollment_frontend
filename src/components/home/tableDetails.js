@@ -296,13 +296,9 @@ const TableDetails = ({ courseId }) => {
                 {studentIndex + 1}
               </td>
               {[
-                <div>
-                  {student?.last_name} {student?.name}
-                  {student.status === "generation_best_student" && (
-                    <span className="text-red-500"> (UG)</span>
-                  )}
-                  {student.status === "unconditional" && "*"}
-                </div>,
+                student?.last_name + ' ' + student?.name +
+                (student.status === "generation_best_student" ? ` (UG)` : '') +
+                (student.status === "unconditional" ? '*' : ''),
                 student?.primary_school,
                 ...Object.values(student?.averageScores || {}),
                 student?.sv,
