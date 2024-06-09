@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import Url from "../../../constants";
 import { useRouter } from "next/router";
@@ -238,61 +237,78 @@ const ListStudentsPerCourse = ({ courseId }) => {
     </div>
   );
 };
-  
-  // Function to retrieve all students
-  export const getAllStudents = async (courseId, pageNo = 1, noPerPage = 10) => {
-  try {
-    //let studentNumber = courseId === "RTIA" ? 44 : 22;
 
+// Function to retrieve all students
+export const getAllStudents = async (courseId, pageNo = 1, noPerPage = 10) => {
+  try {
     const resp = await fetch(
-      `${Url}api/sec-students/student-list/1/${courseId}/statistics_ordered/${pageNo}/${noPerPage}/`,
+      `${Url}api/sec-students/student-list/1/${courseId}/statistics/${pageNo}/${noPerPage}/`,
       {
         method: "GET",
       }
     );
-    const responseData = await resp.json();
+    const studentsData = await resp.json();
 
-    const totalPupils = responseData.total_pupils_on_this_course;
-    const studentsData = responseData.students;
-
-    console.log("studentsData:", studentsData);
+    const totalPupils = studentsData.total_pupils_on_this_course;
 
     const extractedStudents = [];
 
-    studentsData.forEach((studentEntry) => {
-      const scPerGrade = studentEntry[0]?.statistics[1]?.sc_per_grade || [];
-      const formattedScPerGrade = scPerGrade.map((grade) => ({
-        class_code: grade.class_code || "",
-        course_code: grade.course_code || "",
-        score: grade.score || 0,
-      }));
+    const studentEntries = Object.values(studentsData).filter((entry) =>
+      Array.isArray(entry)
+    );
 
+    for (const studentEntry of studentEntries) {
       const student = {
+        // [0];
+        course_name: studentEntry[0]?.course_name || "",
         id: studentEntry[0]?.pupil_id || null,
         name: studentEntry[0]?.pupil_name || "",
         last_name: studentEntry[0]?.pupil_last_name || "",
         middle_name: studentEntry[0]?.pupil_middle_name || "",
         primary_school: studentEntry[0]?.pupil_primary_school || "",
         status: studentEntry[0]?.pupil_status || "",
+        desired_course: studentEntry[0]?.pupil_desired_course || "",
         full_course_name: studentEntry[0]?.course_name || "",
-        course_name: studentEntry[0]?.course_name || "",
-        total_points: studentEntry[0]?.total_score || 0,
-        average_VI: studentEntry[0]?.statistics[0]?.average_VI || 0,
-        average_VII: studentEntry[0]?.statistics[0]?.average_VII || 0,
-        average_VIII: studentEntry[0]?.statistics[0]?.average_VIII || 0,
-        average_IX: studentEntry[0]?.statistics[0]?.average_IX || 0,
-        points: studentEntry[0]?.statistics[0]?.points || 0,
-        total_special_points: studentEntry[0]?.statistics[1]?.total_special_points || 0,
-        total_federal_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_federal_points || 0,
-        total_canton_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_canton_points || 0,
-        total_district_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_district_points || 0,
-        total_ack_points: studentEntry[0]?.statistics[2]?.acknowledgments?.total_ack_points || 0,
-        sc_per_grade: formattedScPerGrade,
+        // [1];
+        total_points: studentEntry[1]?.total_score || 0,
+        // Statictics array [2][0];
+        average_VI: studentEntry[2]?.statistics[0]?.average_VI || 0,
+        average_VII: studentEntry[2]?.statistics[0]?.average_VII || 0,
+        average_VIII: studentEntry[2]?.statistics[0]?.average_VIII || 0,
+        average_IX: studentEntry[2]?.statistics[0]?.average_IX || 0,
+        points: studentEntry[2]?.statistics[0]?.points || 0,
+        // Total special points [2][1];
+        total_special_points:
+          studentEntry[2]?.statistics[1]?.total_special_points || 0,
+        // Acknowledgments [2][2];
+        total_federal_points:
+          studentEntry[2]?.statistics[2]?.acknowledgments
+            ?.total_federal_points || 0,
+        total_canton_points:
+          studentEntry[2]?.statistics[2]?.acknowledgments
+            ?.total_canton_points || 0,
+        total_district_points:
+          studentEntry[2]?.statistics[2]?.acknowledgments
+            ?.total_district_points || 0,
+        total_ack_points:
+          studentEntry[2]?.statistics[2]?.acknowledgments?.total_ack_points ||
+          0,
+        // Special courses grades [2][1];
+        sc_per_grade: studentEntry[2]?.statistics[1]?.sc_per_grade || null,
       };
 
-      extractedStudents.push(student);
-    });
+      // Extracting special courses grade data;
+      const scPerGrade = studentEntry[2]?.statistics[1]?.sc_per_grade || [];
+      const formattedScPerGrade = scPerGrade.map((grade) => ({
+        class_code: grade.class_code || "",
+        course_code: grade.course_code || "",
+        score: grade.score || 0,
+      }));
 
+      student.sc_per_grade = formattedScPerGrade;
+
+      extractedStudents.push(student);
+    }
     return { extractedStudents, totalPupils };
   } catch (e) {
     console.error("Error fetching student data:", e);
@@ -300,4 +316,4 @@ const ListStudentsPerCourse = ({ courseId }) => {
   }
 };
 
-  export default ListStudentsPerCourse;
+export default ListStudentsPerCourse;
