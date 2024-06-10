@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import useIsMobile from "./useIsMobile";
 import useIsTablet from "./useIsTablet";
 import useIsMiniTablet from "./useIsMiniTablet";
+import { useRouter } from "next/router";
 
 const ListCoursesHome = () => {
     const { data } = useSession();
@@ -14,6 +15,7 @@ const ListCoursesHome = () => {
     const isMobile = useIsMobile();
     const isTablet = useIsTablet();
     const isMiniTablet = useIsMiniTablet();
+    const router = useRouter()
 
     async function getAllCourses() {
         try {
@@ -29,6 +31,7 @@ const ListCoursesHome = () => {
         } catch (error) {
             setError(error);
             setLoading(false);
+            router.replace("/401");
         }
     }
 
